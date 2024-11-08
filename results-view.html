@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>MatriXSS</title>
+    <link rel="stylesheet" type="text/css" href="./style/results-view.css">
+  </head>
+  
+  <body>
+    <h1>Scan results</h1>
+    <div class="container">
+      <div id="results-container">
+        <p style="color: white;">Click on any row to display its page.</p>
+        <table id="results-table">
+          <tr>
+            <th>url</th>
+            <th>element</th>
+            <th>page name</th>
+          </tr>
+        </table>
+      </div>
+      
+      <div id="page-view">
+        <iframe id="page-container"></iframe>
+      </div>
+    </div>
+  </body>
+  
+  <script src="./script/results-view.js"></script>
+</html> 
