@@ -1,26 +1,26 @@
 class ScanResult {
     url;
-    element;
+    elementSelector;
     pageName;
     
-    constructor(url, element, pageName) {
+    constructor(url, elementSelector, pageName) {
         this.url = String(url);
-        this.element = String(element);
+        this.elementSelector = String(elementSelector);
         this.pageName = String(pageName);
     }
 }
 
 /**
- * Builds a ScanResult from an received object. Fails when any of the required properties is not present.
+ * Builds a ScanResult from a received object. Fails when any of the required properties is not present.
  * @param {object} result - result of a found blind xss vulnerability
  * @returns {ScanResult | null} A ScanResult object
  */
 function toScanResult(result) {
-    if (!result.url || !result.element || !result.pageName) {
+    if (!result.url || !result.elementSelector || !result.pageName) {
         return;
     }
     
-    return new ScanResult(result.url, result.element, result.pageName);
+    return new ScanResult(result.url, result.elementSelector, result.pageName);
 }
 
 
@@ -41,7 +41,7 @@ function appendNewResult(result) {
     rowUrl.innerText = result.url;
     
     const rowElement = document.createElement('td');
-    rowElement.innerText = result.element;
+    rowElement.innerText = result.elementSelector;
     
     const rowPageName = document.createElement('td');
     rowPageName.innerText = result.pageName;
@@ -52,7 +52,7 @@ function appendNewResult(result) {
     resultRow.appendChild(rowPageName);
     
     resultRow.onclick = function() {
-        updatePageView(result.url);
+        updatePageView(result);
     }
     
     resultsList.appendChild(resultRow);
@@ -60,27 +60,58 @@ function appendNewResult(result) {
 
 
 /**
- * Fetches a webpage by url, and displays it in the frontend.
- * @param {String} url - The url of the webpage that should be fetched.
+ * Fetches a webpage based on a ScanResult, and highlights the vulnerable component.
+ * @param {ScanResult} result - The ScanResult that should be used to display a vulnerable webpage.
  */
-function updatePageView(url) {   
+function updatePageView(result) {   
     const pageContainer = document.getElementById('page-container');
-    pageContainer.src = url;
+    pageContainer.src = result.url;
+    
+    pageContainer.onload = () => {
+        highlightElementBySelector(result.elementSelector);
+    }
+}
+
+/**
+ * Highlight the first element found by the given query selector.
+ * @param {String} querySelector - The query selector to get the element that should be highlighted.
+ */
+function highlightElementBySelector(querySelector) {
+    const pageContainer = document.getElementById('page-container');
+    const iframedocument = pageContainer.contentDocument || pageContainer.contentWindow.document;
+    
+    if (!iframedocument) {
+        console.error('Failed to access iframe document');
+        return;
+    }
+    
+    const foundElement = iframedocument.querySelector(querySelector);
+    if (!foundElement) {
+        console.error('Failed to find vulnerable element based on the provided query selector.');
+        return;
+    }
+    
+    foundElement.style.outline = "5px solid red";
 }
 
 const testResult = new ScanResult(
     'http://localhost:8080/users/create-account',
-    '<input type="text">...',
+    '#username-input',
     'create user',
 );
 
 const validUrlResult = new ScanResult(
     'https://example.com/',
-    '<input type="text">...',
+    'h1',
     'Example Domain',
+);
+
+const testAppResult = new ScanResult(
+    'http://localhost:5173/',
+    '#counter',
+    'test app',
 );
 
 appendNewResult(testResult);
 appendNewResult(validUrlResult);
-updatePageView('https://example.com/');
-
+appendNewResult(testAppResult);
