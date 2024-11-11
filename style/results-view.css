@@ -11,19 +11,6 @@ h1 {
     color: whitesmoke;
 }
 
-button {
-    margin-top: 1rem;
-    background-color: #1e4ed2;
-    color: whitesmoke;
-    padding: 0.5rem;
-    border-radius: 5px;
-    border: none;
-}
-
-button:hover {
-    background-color: #3b68e6;
-}
-
 #results-table {
     min-width: 33vw;
 }
